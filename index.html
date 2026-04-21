@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YELL GROUP — แบบประเมินความเสี่ยงกองทุนสำรองเลี้ยงชีพ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  :root{--yell:#F5C800;--yell-dk:#D4A900;--ink:#0F0F0F;--ink2:#2A2A2A;--muted:#5A5A5A;--surf:#FAFAFA;--card:#FFFFFF;--bd:rgba(0,0,0,0.08);--r:14px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#f0f0f0;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;font-family:'Sarabun',sans-serif}
+  #app{width:100%;max-width:640px}
+  .hero{background:var(--yell);border-radius:var(--r);padding:28px 28px 24px;margin-bottom:20px;position:relative;overflow:hidden}
+  .hero::after{content:'';position:absolute;right:-30px;top:-30px;width:160px;height:160px;border-radius:50%;background:rgba(0,0,0,0.06)}
+  .hero-logo{font-family:'Archivo Black',sans-serif;font-size:32px;font-weight:900;color:var(--ink);letter-spacing:-1px;margin-bottom:4px}
+  .hero-title{font-size:15px;color:var(--ink2);font-weight:500;line-height:1.5}
+  .hero-sub{font-size:12px;color:var(--muted);margin-top:6px}
+  .prog-wrap{margin-bottom:20px}
+  .prog-lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px}
+  .prog-bar{height:5px;background:var(--bd);border-radius:99px;overflow:hidden}
+  .prog-fill{height:100%;background:var(--yell);border-radius:99px;transition:width 0.4s cubic-bezier(.4,0,.2,1)}
+  .qcard{background:var(--card);border:0.5px solid var(--bd);border-radius:var(--r);padding:24px;margin-bottom:16px;display:none}
+  .qcard.active{display:block}
+  .qnum{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--yell);color:var(--ink);font-size:13px;font-weight:700;margin-bottom:12px}
+  .qsec{font-size:11px;font-weight:600;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+  .qtxt{font-size:17px;font-weight:600;color:var(--ink);line-height:1.5;margin-bottom:18px}
+  .options{display:flex;flex-direction:column;gap:10px}
+  .opt{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1.5px solid var(--bd);border-radius:10px;cursor:pointer;transition:border-color 0.15s,background 0.15s;background:var(--surf)}
+  .opt:hover{border-color:var(--yell-dk);background:#FFFBE6}
+  .opt.selected{border-color:var(--yell);background:#FFF9D6}
+  .radio{width:20px;height:20px;border-radius:50%;border:2px solid #CCCCCC;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:border-color 0.15s,background 0.15s}
+  .opt:hover .radio{border-color:var(--yell-dk)}
+  .opt.selected .radio{border-color:var(--yell);background:var(--yell)}
+  .radio-dot{width:8px;height:8px;border-radius:50%;background:var(--ink);opacity:0;transition:opacity 0.15s}
+  .opt.selected .radio-dot{opacity:1}
+  .opt-text{font-size:14px;color:var(--ink2);line-height:1.55}
+  .fx-card{background:var(--card);border:0.5px solid var(--bd);border-radius:var(--r);padding:20px 24px;margin-bottom:16px;display:none}
+  .fx-card.active{display:block}
+  .fx-lbl{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:14px;line-height:1.5}
+  .fx-tog{display:flex;gap:10px}
+  .fx-btn{flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--bd);background:var(--surf);font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;text-align:center;font-family:'Sarabun',sans-serif}
+  .fx-btn:hover{border-color:var(--yell-dk)}
+  .fx-btn.selected{border-color:var(--yell);background:#FFF9D6;color:var(--ink)}
+  .nav{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 4px}
+  .btn-back{padding:12px 24px;border-radius:10px;border:1.5px solid var(--bd);background:transparent;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:'Sarabun',sans-serif}
+  .btn-back:hover{background:var(--surf)}
+  .btn-next{flex:1;padding:13px 28px;border-radius:10px;border:none;background:var(--yell);font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;transition:background 0.15s,transform 0.1s;font-family:'Sarabun',sans-serif}
+  .btn-next:hover{background:var(--yell-dk)}
+  .btn-next:active{transform:scale(0.98)}
+  .btn-next:disabled{opacity:0.4;cursor:not-allowed}
+  .result{display:none;background:var(--card);border:0.5px solid var(--bd);border-radius:var(--r);overflow:hidden}
+  .result.active{display:block}
+  .res-head{background:var(--yell);padding:28px 28px 24px;text-align:center}
+  .res-lbl{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:4px}
+  .res-num{font-size:60px;font-weight:900;color:var(--ink);line-height:1;font-family:'Archivo Black',sans-serif}
+  .res-max{font-size:14px;color:var(--muted)}
+  .res-body{padding:24px 28px}
+  .lvl-row{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+  .lvl-badge{display:inline-flex;align-items:center;background:var(--yell);padding:8px 16px;border-radius:8px;font-size:15px;font-weight:700;color:var(--ink)}
+  .lvl-desc{font-size:22px;font-weight:700;color:var(--ink)}
+  .sec-lbl{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+  .scale-wrap{margin-bottom:24px}
+  .scale{display:flex;gap:4px;align-items:flex-end}
+  .sbar{flex:1;border-radius:5px;background:#E8E8E8}
+  .sbar.active{background:var(--yell)}
+  .sbar-lbl{text-align:center;font-size:10px;color:var(--muted);margin-top:5px;font-weight:500}
+  .sbar.active .sbar-lbl{color:var(--ink2);font-weight:700}
+  .plan-card{background:#FFFBE6;border:1.5px solid var(--yell);border-radius:12px;padding:18px 20px;margin-bottom:12px}
+  .plan-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .plan-num{width:28px;height:28px;border-radius:50%;background:var(--yell);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--ink);flex-shrink:0}
+  .plan-name{font-size:16px;font-weight:700;color:var(--ink)}
+  .plan-alloc{font-size:12px;font-weight:600;color:var(--muted)}
+  .plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+  .plan-stat{background:rgba(255,255,255,0.7);border-radius:8px;padding:8px 10px}
+  .plan-stat-lbl{font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
+  .plan-stat-val{font-size:13px;font-weight:600;color:var(--ink2)}
+  .plan-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:rgba(0,0,0,0.06);color:var(--muted)}
+  .tag-nothai{background:#E8F5E9;color:#2E7D32}
+  .alt-plan-card{background:var(--surf);border:0.5px solid var(--bd);border-radius:10px;padding:14px 16px;margin-bottom:8px}
+  .alt-plan-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .alt-plan-num{width:22px;height:22px;border-radius:50%;background:#E0E0E0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0}
+  .alt-plan-name{font-size:14px;font-weight:600;color:var(--ink2)}
+  .alt-plan-sub{font-size:12px;color:var(--muted)}
+  .fx-res{padding:12px 14px;background:var(--surf);border-radius:9px;border:0.5px solid var(--bd);font-size:13px;color:var(--ink2);margin-bottom:22px}
+  .disclaimer{font-size:11px;color:var(--muted);line-height:1.6;padding:12px 14px;background:var(--surf);border-radius:9px;border:0.5px solid var(--bd)}
+  .btn-reset{width:100%;margin-top:16px;padding:13px;border-radius:10px;border:1.5px solid var(--bd);background:transparent;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Sarabun',sans-serif}
+  .btn-reset:hover{background:var(--surf)}
+  .divider{border:none;border-top:0.5px solid var(--bd);margin:20px 0}
+  @media(max-width:500px){.hero-logo{font-size:26px}.qtxt{font-size:15px}.res-num{font-size:48px}.plan-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hero">
+    <div class="hero-logo">yell</div>
+    <div class="hero-title">แบบประเมินความเสี่ยง<br>กองทุนสำรองเลี้ยงชีพ</div>
+    <div class="hero-sub">Member Risk Profile · YELL GROUP</div>
+  </div>
+  <div class="prog-wrap" id="prog-wrap">
+    <div class="prog-lbl"><span id="prog-txt">ข้อที่ 1 จาก 10</span><span id="prog-pct">0%</span></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div id="qwrap">
+    <div class="qcard active" data-q="1">
+      <div class="qsec">อายุหรือระยะเวลาลงทุน</div><div class="qnum">1</div>
+      <div class="qtxt">ท่านจะเกษียณอายุเมื่อไร</div>
+      <div class="options">
+        <div class="opt" data-score="1"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">ภายใน 5 ปี หรือเกษียณอายุแล้ว</span></div>
+        <div class="opt" data-score="2"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">มากกว่า 5 ปี ถึง 10 ปี</span></div>
+        <div class="opt" data-score="3"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">มากกว่า 10 ปี ถึง 15 ปี</span></div>
+        <div class="opt" data-score="4"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">มากกว่า 15 ปี</span></div>
+      </div>
+    </div>
+    <div class="qcard" data-q="2">
+      <div class="qsec">สถานภาพทางการเงิน</div><div class="qnum">2</div>
+      <div class="qtxt">ปัจจุบันท่านมีภาระค่าใช้จ่ายรายเดือน รวมเป็นสัดส่วนเท่าใดของรายได้ต่อเดือน</div>
+      <div class="options">
+        <div class="opt" data-score="1"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">มากกว่า 80%</span></div>
+        <div class="opt" data-score="2"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">มากกว่า 50% ถึง 80%</span></div>
+        <div class="opt" data-score="3"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">มากกว่า 20% ถึง 50%</span></div>
+        <div class="opt" data-score="4"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">ไม่เกิน 20%</span></div>
+      </div>
+    </div>
+    <div class="qcard" data-q="3">
+      <div class="qsec">สถานภาพทางการเงิน</div><div class="qnum">3</div>
+      <div class="qtxt">หากท่านออกจากงานวันนี้ เงินออมที่ท่านมีอยู่จะรองรับค่าใช้จ่ายได้นานแค่ไหน</div>
+      <div class="options">
+        <div class="opt" data-score="1"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">น้อยกว่า 3 เดือน</span></div>
+        <div class="opt" data-score="2"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">3 เดือน ถึง 1 ปี</span></div>
+        <div class="opt" data-score="3"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">มากกว่า 1 ปี ถึง 3 ปี</span></div>
+        <div class="opt" data-score="4"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">มากกว่า 3 ปี</span></div>
+      </div>
+    </div>
+    <div class="qcard" data-q="4">
+      <div class="qsec">สถานภาพทางการเงิน</div><div class="qnum">4</div>
+      <div class="qtxt">จำนวนเงินกองทุนสำรองเลี้ยงชีพ ณ ปัจจุบัน คิดเป็นสัดส่วนเท่าใดของทรัพย์สินทั้งสิ้นของท่าน</div>
+      <div class="options">
+        <div class="opt" data-score="1"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">มากกว่า 75%</span></div>
+        <div class="opt" data-score="2"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">มากกว่า 50% ถึง 75%</span></div>
+        <div class="opt" data-score="3"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">มากกว่า 25% ถึง 50%</span></div>
+        <div class="opt" data-score="4"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">ไม่เกิน 25%</span></div>
+      </div>
+    </div>
+    <div class="qcard" data-q="5">
+      <div class="qsec">สถานภาพทางการเงิน</div><div class="qnum">5</div>
+      <div class="qtxt">หากท่านต้องเข้ารักษาตัวในโรงพยาบาลหลังเกษียณอายุแล้ว ท่านจะหาเงินค่ารักษาพยาบาลจากไหน</div>
+      <div class="options">
+        <div class="opt" data-score="1"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">เงินออมของตนเอง</span></div>
+        <div class="opt" data-score="2"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">ให้ครอบครัวร่วมรับผิดชอบ</span></div>
+        <div class="opt" data-score="3"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">สวัสดิการต่าง ๆ</span></div>
+        <div class="opt" data-score="4"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">ประกันสุขภาพ</span></div>
+      </div>
+    </div>
+    <div class="qcard" data-q="6">
+      <div class="qsec">ความเข้าใจในการลงทุน</div><div class="qnum">6</div>
+      <div class="qtxt">ท่านรู้จักการลงทุนอะไรบ้าง</div>
+      <div class="options">
+        <div class="opt" data-score="1"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">เงินฝาก</span></div>
+        <div class="opt" data-score="2"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">เงินฝาก · พันธบัตร · หุ้นกู้</span></div>
+        <div class="opt" data-score="3"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">เงินฝาก · พันธบัตร · หุ้นกู้ · กองทุนรวม · หุ้นสามัญ</span></div>
+        <div class="opt" data-score="4"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">เงินฝาก · พันธบัตร · หุ้นกู้ · กองทุนรวม · หุ้นสามัญ · กองทุนทองคำ · กองทุนอสังหาริมทรัพย์ และอื่น ๆ</span></div>
+      </div>
+    </div>
+    <div class="qcard" data-q="7">
+      <div class="qsec">ความเข้าใจในการลงทุน</div><div class="qnum">7</div>
+      <div class="qtxt">ท่านมีประสบการณ์การลงทุนอะไรบ้าง</div>
+      <div class="options">
+        <div class="opt" data-score="1"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">เงินฝาก</span></div>
+        <div class="opt" data-score="2"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">เงินฝาก · พันธบัตร · หุ้นกู้</span></div>
+        <div class="opt" data-score="3"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">เงินฝาก · พันธบัตร · หุ้นกู้ · กองทุนรวม · หุ้นสามัญ</span></div>
+        <div class="opt" data-score="4"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">เงินฝาก · พันธบัตร · หุ้นกู้ · กองทุนรวม · หุ้นสามัญ · กองทุนทองคำ · กองทุนอสังหาริมทรัพย์ และอื่น ๆ</span></div>
+      </div>
+    </div>
+    <div class="qcard" data-q="8">
+      <div class="qsec">ความสามารถรับความเสี่ยง</div><div class="qnum">8</div>
+      <div class="qtxt">ทัศนคติในการลงทุนของท่านเป็นอย่างไร</div>
+      <div class="options">
+        <div class="opt" data-score="1"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">ไม่สามารถทนต่อการขาดทุนเงินต้นได้เลย</span></div>
+        <div class="opt" data-score="2"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">สามารถทนต่อการขาดทุนเงินต้นได้บ้าง เพื่อมีโอกาสได้รับผลตอบแทนที่สูงขึ้น</span></div>
+        <div class="opt" data-score="3"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">สามารถทนต่อการขาดทุนเงินต้นได้มาก เพื่อมีโอกาสได้รับผลตอบแทนสูง</span></div>
+        <div class="opt" data-score="4"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">อยากได้ผลตอบแทนสูงสุด โดยไม่มีข้อจำกัดในการลงทุน</span></div>
+      </div>
+    </div>
+    <div class="qcard" data-q="9">
+      <div class="qsec">ความสามารถรับความเสี่ยง</div><div class="qnum">9</div>
+      <div class="qtxt">เป้าหมายการลงทุนของท่านเป็นอย่างไร</div>
+      <div class="options">
+        <div class="opt" data-score="1"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">เงินต้นต้องปลอดภัย แม้ว่าจะได้รับผลตอบแทนต่ำกว่าอัตราเงินเฟ้อ</span></div>
+        <div class="opt" data-score="2"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">ต้องการผลตอบแทนสูงกว่าอัตราเงินเฟ้อ โดยสามารถรับความผันผวนได้บ้าง</span></div>
+        <div class="opt" data-score="3"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">ต้องการผลตอบแทนสูงกว่าอัตราเงินเฟ้อมาก โดยสามารถรับความผันผวนได้มาก</span></div>
+        <div class="opt" data-score="4"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">ต้องการผลตอบแทนสูงที่สุด โดยสามารถรับความผันผวนได้เต็มที่</span></div>
+      </div>
+    </div>
+    <div class="qcard" data-q="10">
+      <div class="qsec">ความสามารถรับความเสี่ยง</div><div class="qnum">10</div>
+      <div class="qtxt">ท่านคาดหวังผลตอบแทนจากการลงทุนในกองทุนสำรองเลี้ยงชีพในระดับใดต่อปี</div>
+      <div class="options">
+        <div class="opt" data-score="1"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">ประมาณ 2–3% อย่างสม่ำเสมอ</span></div>
+        <div class="opt" data-score="2"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">มีโอกาสได้รับถึง 5% แต่บางปีอาจไม่มีผลตอบแทนเลย</span></div>
+        <div class="opt" data-score="3"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">มีโอกาสได้รับถึง 8% แต่บางปีอาจขาดทุนได้ถึง 3%</span></div>
+        <div class="opt" data-score="4"><span class="radio"><span class="radio-dot"></span></span><span class="opt-text">มีโอกาสได้รับถึง 25% แต่บางปีอาจขาดทุนได้ถึง 15%</span></div>
+      </div>
+    </div>
+    <div class="fx-card" id="fx-card">
+      <div class="qsec">การลงทุนต่างประเทศ</div>
+      <div class="fx-lbl">สำหรับการลงทุนในนโยบายต่างประเทศ<br>ท่านสามารถรับความเสี่ยงด้านอัตราแลกเปลี่ยนได้หรือไม่</div>
+      <div class="fx-tog">
+        <button class="fx-btn" data-val="yes">ได้</button>
+        <button class="fx-btn" data-val="no">ไม่ได้</button>
+      </div>
+    </div>
+    <div class="nav" id="nav">
+      <button class="btn-back" id="btn-back" style="display:none">← ย้อนกลับ</button>
+      <button class="btn-next" id="btn-next" disabled>ถัดไป →</button>
+    </div>
+  </div>
+  <div class="result" id="result">
+    <div class="res-head">
+      <div class="res-lbl">คะแนนรวม</div>
+      <div class="res-num" id="r-score">—</div>
+      <div class="res-max">จากคะแนนเต็ม 40 คะแนน</div>
+    </div>
+    <div class="res-body">
+      <div class="lvl-row">
+        <div class="lvl-badge" id="r-badge">ระดับ —</div>
+        <div class="lvl-desc" id="r-desc">—</div>
+      </div>
+      <div class="scale-wrap">
+        <div class="sec-lbl">ระดับความเสี่ยงที่ยอมรับได้</div>
+        <div class="scale" id="r-scale"></div>
+      </div>
+      <hr class="divider">
+      <div class="sec-lbl" style="margin-bottom:14px">แผนการลงทุนที่เหมาะสมสำหรับท่าน</div>
+      <div id="r-plans"></div>
+      <div class="sec-lbl" style="margin-top:20px;margin-bottom:10px">ความเสี่ยงด้านอัตราแลกเปลี่ยน</div>
+      <div class="fx-res" id="r-fx"></div>
+      <div class="disclaimer">หมายเหตุ: ผลการประเมินนี้เป็นเพียงส่วนหนึ่งในการประกอบการตัดสินใจ มิได้ยืนยันว่านโยบายการลงทุนดังกล่าวเหมาะสมกับท่านทุกประการ ท่านต้องศึกษาข้อมูลจากปัจจัยอื่น ๆ ประกอบเพิ่มเติมด้วย</div>
+      <button class="btn-reset" id="btn-reset">ทำแบบประเมินใหม่อีกครั้ง</button>
+    </div>
+  </div>
+</div>
+<script>
+const PLANS=[
+  {num:1,name:'รักษาเงินต้น',alloc:'ST60 : MR40',thai:false,ret:'2–3%',risk:'3/8',maxloss:'~3–5%',age:'45 ปีขึ้นไป',desc:'ตราสารหนี้ระยะสั้น 60% + Fixed Income & REIT 40% ไม่มีหุ้นไทย'},
+  {num:2,name:'อนุรักษ์นิยม',alloc:'F70 : E30',thai:true,ret:'3–5%',risk:'5/8',maxloss:'~10–15%',age:'40–50 ปี',desc:'ตราสารหนี้ 70% + หุ้นไทย 30% (แผนปัจจุบัน)'},
+  {num:3,name:'สมดุลโลก',alloc:'MR50 : GQ50',thai:false,ret:'5–7%',risk:'5/8',maxloss:'~15–20%',age:'35–45 ปี',desc:'Fixed Income & REIT 50% + หุ้นโลกคุณภาพสูง 50% ป้องกันค่าเงิน 90%'},
+  {num:4,name:'เติบโตโลก',alloc:'GQ50 : US50',thai:false,ret:'7–10%',risk:'6/8',maxloss:'~25–35%',age:'28–38 ปี',desc:'หุ้นโลกคุณภาพสูง 50% + S&P 500 50% ป้องกันความเสี่ยงค่าเงิน'},
+  {num:5,name:'เติบโตสูงสุด',alloc:'GQ40 : US35 : NQ25',thai:false,ret:'8–12%',risk:'7/8',maxloss:'~35–45%',age:'ต่ำกว่า 30 ปี',desc:'หุ้นโลกคุณภาพสูง 40% + S&P 500 35% + NASDAQ 25%'}
+];
+const LEVEL_PLANS={1:{primary:[1],alt:[]},2:{primary:[1,2],alt:[]},3:{primary:[2,3],alt:[]},4:{primary:[4],alt:[3]},5:{primary:[5],alt:[4]}};
+const LEVELS=[{min:10,max:16,level:1,label:'ต่ำ'},{min:17,max:22,level:2,label:'ค่อนข้างต่ำ'},{min:23,max:28,level:3,label:'ปานกลาง'},{min:29,max:34,level:4,label:'ค่อนข้างสูง'},{min:35,max:40,level:5,label:'สูง'}];
+const A={};let fx=null,cur=1;
+const isFx=()=>cur===11;
+const getLevel=s=>LEVELS.find(l=>s>=l.min&&s<=l.max)||LEVELS[0];
+function prog(){
+  const d=Object.keys(A).length,p=Math.round((d/10)*100);
+  document.getElementById('prog-fill').style.width=p+'%';
+  document.getElementById('prog-pct').textContent=p+'%';
+  document.getElementById('prog-txt').textContent=isFx()?'คำถามเพิ่มเติม':'ข้อที่ '+cur+' จาก 10';
+}
+function render(){
+  document.querySelectorAll('.qcard').forEach(c=>c.classList.toggle('active',parseInt(c.dataset.q)===cur));
+  document.getElementById('fx-card').classList.toggle('active',isFx());
+  document.getElementById('btn-back').style.display=cur>1?'block':'none';
+  const n=document.getElementById('btn-next');
+  n.disabled=isFx()?fx===null:!A[cur];
+  n.textContent=isFx()?'ดูผลการประเมิน →':'ถัดไป →';
+  prog();
+}
+document.querySelectorAll('.qcard').forEach(card=>{
+  card.querySelectorAll('.opt').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      const q=parseInt(card.dataset.q);
+      card.querySelectorAll('.opt').forEach(o=>o.classList.remove('selected'));
+      opt.classList.add('selected');A[q]=parseInt(opt.dataset.score);render();
+    });
+  });
+});
+document.querySelectorAll('.fx-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.fx-btn').forEach(x=>x.classList.remove('selected'));
+    b.classList.add('selected');fx=b.dataset.val;render();
+  });
+});
+document.getElementById('btn-next').addEventListener('click',()=>{if(isFx()){showResult();return;}if(A[cur]){cur++;render();}});
+document.getElementById('btn-back').addEventListener('click',()=>{if(cur>1){cur--;render();}});
+function buildPlanCard(p,primary){
+  const thaiTag=p.thai?'<span class="plan-tag" style="background:#FFF3E0;color:#E65100">มีหุ้นไทย</span>':'<span class="plan-tag tag-nothai">ไม่มีหุ้นไทย</span>';
+  if(primary){
+    return '<div class="plan-card"><div class="plan-header"><div class="plan-num">'+p.num+'</div><div><div class="plan-name">แผน '+p.num+' — '+p.name+'</div><div class="plan-alloc">'+p.alloc+'</div></div><div style="margin-left:auto">'+thaiTag+'</div></div><div class="plan-grid"><div class="plan-stat"><div class="plan-stat-lbl">ผลตอบแทนคาดหวัง</div><div class="plan-stat-val">'+p.ret+' ต่อปี</div></div><div class="plan-stat"><div class="plan-stat-lbl">ขาดทุนสูงสุด</div><div class="plan-stat-val">'+p.maxloss+'</div></div><div class="plan-stat"><div class="plan-stat-lbl">ระดับความเสี่ยง SEC</div><div class="plan-stat-val">'+p.risk+'</div></div><div class="plan-stat"><div class="plan-stat-lbl">เหมาะกับอายุ</div><div class="plan-stat-val">'+p.age+'</div></div></div><div style="font-size:12px;color:var(--muted);line-height:1.6">'+p.desc+'</div></div>';
+  }else{
+    return '<div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:var(--muted);text-transform:uppercase;margin:14px 0 8px">ทางเลือกเพิ่มเติม</div><div class="alt-plan-card"><div class="alt-plan-header"><div class="alt-plan-num">'+p.num+'</div><div><div class="alt-plan-name">แผน '+p.num+' — '+p.name+' <span style="font-size:11px;color:var(--muted);font-weight:400">'+p.alloc+'</span></div><div class="alt-plan-sub">'+p.ret+' ต่อปี · ขาดทุนสูงสุด '+p.maxloss+' · SEC '+p.risk+'</div></div></div></div>';
+  }
+}
+function showResult(){
+  document.getElementById('qwrap').style.display='none';
+  document.getElementById('prog-wrap').style.display='none';
+  const total=Object.values(A).reduce((a,b)=>a+b,0);
+  const ld=getLevel(total);
+  document.getElementById('r-score').textContent=total;
+  document.getElementById('r-badge').textContent='ระดับ '+ld.level;
+  document.getElementById('r-desc').textContent='ความเสี่ยง'+ld.label;
+  const sc=document.getElementById('r-scale');sc.innerHTML='';
+  [32,44,56,68,80].forEach((h,i)=>{
+    const w=document.createElement('div');w.style.flex='1';
+    const b=document.createElement('div');b.className='sbar'+(i+1===ld.level?' active':'');b.style.height=h+'px';
+    const l=document.createElement('div');l.className='sbar-lbl';l.textContent=['ต่ำ','ค่อนข้างต่ำ','ปานกลาง','ค่อนข้างสูง','สูง'][i];
+    w.appendChild(b);w.appendChild(l);sc.appendChild(w);
+  });
+  const lp=LEVEL_PLANS[ld.level];
+  let html='';
+  lp.primary.forEach(n=>{html+=buildPlanCard(PLANS[n-1],true);});
+  lp.alt.forEach(n=>{html+=buildPlanCard(PLANS[n-1],false);});
+  document.getElementById('r-plans').innerHTML=html;
+  document.getElementById('r-fx').textContent=fx==='yes'?'สามารถรับความเสี่ยงด้านอัตราแลกเปลี่ยนได้ — เหมาะสำหรับแผน 3, 4, 5 ที่ลงทุนในต่างประเทศ':'ไม่สามารถรับความเสี่ยงด้านอัตราแลกเปลี่ยน — แนะนำแผน 1 หรือ 2 ซึ่งลงทุนในประเทศเป็นหลัก';
+  document.getElementById('result').classList.add('active');
+}
+document.getElementById('btn-reset').addEventListener('click',()=>{
+  Object.keys(A).forEach(k=>delete A[k]);fx=null;cur=1;
+  document.querySelectorAll('.opt,.fx-btn').forEach(e=>e.classList.remove('selected'));
+  document.getElementById('result').classList.remove('active');
+  document.getElementById('qwrap').style.display='';
+  document.getElementById('prog-wrap').style.display='';
+  render();
+});
+render();
+</script>
+</body>
+</html>
