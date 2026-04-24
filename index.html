@@ -75,14 +75,18 @@
   .plan-stat{background:rgba(255,255,255,0.7);border-radius:8px;padding:8px 10px}
   .plan-stat-lbl{font-size:10px;font-weight:700;letter-spacing:0.06em;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
   .plan-stat-val{font-size:13px;font-weight:600;color:var(--ink2)}
-  .plan-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;background:rgba(0,0,0,0.06);color:var(--muted)}
+  .plan-tag{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px}
   .tag-nothai{background:#E8F5E9;color:#2E7D32}
+  .tag-thai{background:#FFF3E0;color:#E65100}
   .alt-plan-card{background:var(--surf);border:0.5px solid var(--bd);border-radius:10px;padding:14px 16px;margin-bottom:8px}
-  .alt-plan-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .alt-plan-header{display:flex;align-items:center;gap:8px}
   .alt-plan-num{width:22px;height:22px;border-radius:50%;background:#E0E0E0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0}
   .alt-plan-name{font-size:14px;font-weight:600;color:var(--ink2)}
-  .alt-plan-sub{font-size:12px;color:var(--muted)}
-  .fx-res{padding:12px 14px;background:var(--surf);border-radius:9px;border:0.5px solid var(--bd);font-size:13px;color:var(--ink2);margin-bottom:22px}
+  .alt-plan-sub{font-size:12px;color:var(--muted);margin-top:2px}
+  .fx-res{padding:14px 16px;border-radius:9px;font-size:13px;color:var(--ink2);margin-bottom:22px;line-height:1.6}
+  .fx-res.ok{background:#E8F5E9;border:1px solid #A5D6A7}
+  .fx-res.warn{background:#FFF8E1;border:1px solid #FFE082}
+  .fx-res.info{background:#E3F2FD;border:1px solid #90CAF9}
   .disclaimer{font-size:11px;color:var(--muted);line-height:1.6;padding:12px 14px;background:var(--surf);border-radius:9px;border:0.5px solid var(--bd)}
   .btn-reset{width:100%;margin-top:16px;padding:13px;border-radius:10px;border:1.5px solid var(--bd);background:transparent;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Sarabun',sans-serif}
   .btn-reset:hover{background:var(--surf)}
@@ -230,7 +234,7 @@
         <div class="sec-lbl">ระดับความเสี่ยงที่ยอมรับได้</div>
         <div class="scale" id="r-scale"></div>
       </div>
-      <hr class="divider">
+      <hr style="border:none;border-top:0.5px solid var(--bd);margin:20px 0">
       <div class="sec-lbl" style="margin-bottom:14px">แผนการลงทุนที่เหมาะสมสำหรับท่าน</div>
       <div id="r-plans"></div>
       <div class="sec-lbl" style="margin-top:20px;margin-bottom:10px">ความเสี่ยงด้านอัตราแลกเปลี่ยน</div>
@@ -253,6 +257,43 @@ const LEVELS=[{min:10,max:16,level:1,label:'ต่ำ'},{min:17,max:22,level:2,l
 const A={};let fx=null,cur=1;
 const isFx=()=>cur===11;
 const getLevel=s=>LEVELS.find(l=>s>=l.min&&s<=l.max)||LEVELS[0];
+
+function getFxMessage(level, fxAnswer) {
+  // ระดับ 1-2: แผนแนะนำลงทุนในประเทศทั้งหมด ไม่มี FX risk
+  if (level <= 2) {
+    return {
+      cls: 'info',
+      text: 'แผนที่เหมาะสมกับท่าน (แผน 1–2) ลงทุนในประเทศเป็นหลัก ไม่มีความเสี่ยงด้านอัตราแลกเปลี่ยน'
+    };
+  }
+  // ระดับ 3: แผน 2 (ในประเทศ) หรือแผน 3 (ต่างประเทศ)
+  if (level === 3) {
+    if (fxAnswer === 'yes') {
+      return {
+        cls: 'ok',
+        text: 'ท่านสามารถรับความเสี่ยงด้านอัตราแลกเปลี่ยนได้ — เหมาะสำหรับแผน 3 ที่ลงทุนในต่างประเทศ หากไม่ต้องการ FX risk สามารถเลือกแผน 2 ได้เช่นกัน'
+      };
+    } else {
+      return {
+        cls: 'warn',
+        text: 'ท่านไม่สามารถรับความเสี่ยงด้านอัตราแลกเปลี่ยน — แนะนำแผน 2 ซึ่งลงทุนในประเทศเป็นหลัก ไม่มีความเสี่ยงด้านค่าเงิน'
+      };
+    }
+  }
+  // ระดับ 4-5: แผนหลักลงทุนต่างประเทศทั้งหมด
+  if (fxAnswer === 'yes') {
+    return {
+      cls: 'ok',
+      text: 'ท่านสามารถรับความเสี่ยงด้านอัตราแลกเปลี่ยนได้ — เหมาะสำหรับแผน ' + (level === 4 ? '4' : '5') + ' ที่ลงทุนในหุ้นต่างประเทศ'
+    };
+  } else {
+    return {
+      cls: 'warn',
+      text: 'ท่านไม่สามารถรับความเสี่ยงด้านอัตราแลกเปลี่ยน — แม้ระดับความเสี่ยงของท่านจะสูง แนะนำให้พิจารณาแผน 2 หรือปรึกษาผู้จัดการกองทุนเพิ่มเติม'
+    };
+  }
+}
+
 function prog(){
   const d=Object.keys(A).length,p=Math.round((d/10)*100);
   document.getElementById('prog-fill').style.width=p+'%';
@@ -285,14 +326,16 @@ document.querySelectorAll('.fx-btn').forEach(b=>{
 });
 document.getElementById('btn-next').addEventListener('click',()=>{if(isFx()){showResult();return;}if(A[cur]){cur++;render();}});
 document.getElementById('btn-back').addEventListener('click',()=>{if(cur>1){cur--;render();}});
+
 function buildPlanCard(p,primary){
-  const thaiTag=p.thai?'<span class="plan-tag" style="background:#FFF3E0;color:#E65100">มีหุ้นไทย</span>':'<span class="plan-tag tag-nothai">ไม่มีหุ้นไทย</span>';
+  const thaiTag=p.thai?'<span class="plan-tag tag-thai">มีหุ้นไทย</span>':'<span class="plan-tag tag-nothai">ไม่มีหุ้นไทย</span>';
   if(primary){
     return '<div class="plan-card"><div class="plan-header"><div class="plan-num">'+p.num+'</div><div><div class="plan-name">แผน '+p.num+' — '+p.name+'</div><div class="plan-alloc">'+p.alloc+'</div></div><div style="margin-left:auto">'+thaiTag+'</div></div><div class="plan-grid"><div class="plan-stat"><div class="plan-stat-lbl">ผลตอบแทนคาดหวัง</div><div class="plan-stat-val">'+p.ret+' ต่อปี</div></div><div class="plan-stat"><div class="plan-stat-lbl">ขาดทุนสูงสุด</div><div class="plan-stat-val">'+p.maxloss+'</div></div><div class="plan-stat"><div class="plan-stat-lbl">ระดับความเสี่ยง SEC</div><div class="plan-stat-val">'+p.risk+'</div></div><div class="plan-stat"><div class="plan-stat-lbl">เหมาะกับอายุ</div><div class="plan-stat-val">'+p.age+'</div></div></div><div style="font-size:12px;color:var(--muted);line-height:1.6">'+p.desc+'</div></div>';
   }else{
     return '<div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:var(--muted);text-transform:uppercase;margin:14px 0 8px">ทางเลือกเพิ่มเติม</div><div class="alt-plan-card"><div class="alt-plan-header"><div class="alt-plan-num">'+p.num+'</div><div><div class="alt-plan-name">แผน '+p.num+' — '+p.name+' <span style="font-size:11px;color:var(--muted);font-weight:400">'+p.alloc+'</span></div><div class="alt-plan-sub">'+p.ret+' ต่อปี · ขาดทุนสูงสุด '+p.maxloss+' · SEC '+p.risk+'</div></div></div></div>';
   }
 }
+
 function showResult(){
   document.getElementById('qwrap').style.display='none';
   document.getElementById('prog-wrap').style.display='none';
@@ -313,7 +356,13 @@ function showResult(){
   lp.primary.forEach(n=>{html+=buildPlanCard(PLANS[n-1],true);});
   lp.alt.forEach(n=>{html+=buildPlanCard(PLANS[n-1],false);});
   document.getElementById('r-plans').innerHTML=html;
-  document.getElementById('r-fx').textContent=fx==='yes'?'สามารถรับความเสี่ยงด้านอัตราแลกเปลี่ยนได้ — เหมาะสำหรับแผน 3, 4, 5 ที่ลงทุนในต่างประเทศ':'ไม่สามารถรับความเสี่ยงด้านอัตราแลกเปลี่ยน — แนะนำแผน 1 หรือ 2 ซึ่งลงทุนในประเทศเป็นหลัก';
+
+  // FX message สอดคล้องกับระดับความเสี่ยงจริง
+  const fxMsg = getFxMessage(ld.level, fx);
+  const fxEl = document.getElementById('r-fx');
+  fxEl.className = 'fx-res ' + fxMsg.cls;
+  fxEl.textContent = fxMsg.text;
+
   document.getElementById('result').classList.add('active');
 }
 document.getElementById('btn-reset').addEventListener('click',()=>{
